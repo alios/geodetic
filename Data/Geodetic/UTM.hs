@@ -42,15 +42,25 @@ import Numeric.Units.Dimensional.TF.Prelude
 import Data.List (find)
 import Data.Fixed (mod')
 
-data UTM t = UTM {
+data UTM m t = UTM {
   _utmZone :: (Int, Char),
   _utmEasting :: Length t,
   _utmNorthing :: Length t
   } deriving (Show, Eq, Typeable)
 makeLenses ''UTM
 
+
+k0 :: (Floating t) => Dimensionless t
+k0 = 0.9996 *~ one
+
+eastingOffset :: (Num t) => Length t
+eastingOffset = 500 *~ kilo meter
+
+southernOffset :: (Num t) => Length t
+southernOffset = 10000 *~ kilo meter
+
 toUTM :: (GeodeticModel m, RealFrac t, Floating t, Enum t, Show t, Show m) =>
-         GeodeticCoordinate m t -> UTM t
+         GeodeticCoordinate m t -> UTM m t
 toUTM coord =
   let a = semiMajorAxis $ coord ^. refElipsoid
       eccSquared = flattening $ coord ^. refElipsoid
@@ -61,7 +71,6 @@ toUTM coord =
       lat = coord ^. latitude
       long = let l' = (((coord ^. longitude) /~ degree) `mod'` 360) *~ degree
              in (l') - (180 *~ degree)
-      k0 = 0.9996 *~ one
       zoneNumberI =
         case (isSpecialZone coord) of
           Nothing -> floor $ (((coord ^. longitude + (180 *~ degree)) / (6 *~ degree)) + _1) /~ one
@@ -88,17 +97,63 @@ toUTM coord =
                )
       easting = (k0 * nn *
                  (aa + (_1-tt+cc) * aa3 / _6 +
-                  (_5 - _18 * tt + tt2 + _72 * cc - _58 * eccPrimSquared) * aa5 / _120) +
-                 500 *~ kilo meter)
+                  (_5 - _18 * tt + tt2 + _72 * cc - _58 * eccPrimSquared) * aa5 / _120) + eastingOffset)
       northing' = (k0 * (mm + nn * tan (lat) *
                          (aa2/_2 + (_5 - tt + _9 * cc + _4 * cc2) * aa4 / _24 +
                           (_61 - _58 * tt + tt2 + _600 * cc - _330 * eccPrimSquared) * aa6 / _720)))
-      northing = if ( lat < 0 *~ degree) then northing' + 10000 *~ kilo meter else northing' 
+      northing = if ( lat < 0 *~ degree) then northing' + southernOffset else northing' 
   in UTM {
     _utmZone = (zoneNumberI, zoneLetter),
     _utmEasting = easting,
     _utmNorthing = northing
     }
+
+fromUTM :: (GeodeticModel m, Floating t) => UTM m t -> GeodeticCoordinate m t 
+fromUTM utm =
+  let m = geodeticModel
+      x = (utm ^. utmEasting) - eastingOffset
+      y = (utm ^. utmNorthing) - if isNorthern then (0 *~ meter) else southernOffset
+      a = semiMajorAxis m
+      (zoneNumber, zoneLetter) = (utm ^. utmZone)
+      isNorthern = zoneLetter >= 'N'
+      longOrigin = (((P.*) 6 (fromIntegral ((P.-) zoneNumber 1))) *~ degree) - (177 *~ degree)
+      eccPrimSquared = recProcFlattening m
+      es = flattening m
+      e1 = (_1 - sqrt(_1 - es)) / (_1 + sqrt(_1 - es))
+      e12 = e1 * e1 
+      e13 = e12 * e1
+      e14 = e13 * e1
+      es2 = es * es
+      es3 = es2 * es
+      mm = y / k0
+      mu = mm / (a * (_1 - es/_4 - _3*es2/_64 - _5*es3/_256))
+      phil = mu + (_3*e1/_2 - _27*e13/_32) * sin (_2 * mu) +
+             (_21*e12/_16 - _55*e14/_32) * sin (_4 * mu) +
+             (_151*e13/_96) * sin (_6 * mu)
+      n1 = a / sqrt(_1 - es * sin(phil) * sin(phil))
+      t1 = tan(phil) * tan(phil)
+      c1 = eccPrimSquared * cos(phil) * cos(phil)
+      r1 = a * (_1 - es) / (_1 - es * sin(phil) * sin(phil)) ** (1.5 *~ one)
+      d = x / (n1*k0)
+      d2 = d * d
+      d3 = d2 * d
+      d4 = d3 * d
+      d5 = d4 * d
+      d6 = d5 * d
+      lat = phil - (n1 * tan(phil) / r1) *
+            (d2/_2 - (_5 + _3*t1 + _10*c1 - _4*c1*c1 - _9*eccPrimSquared) * d4/_24 +
+            (_61 + _90*t1 + _298*c1 + _45*t1*t1 - _252*eccPrimSquared - _3*c1*c1) * d6 / _720)
+      long' = (d - (_1 + _2*t1 + c1) * d3/_6 +
+               (_5 - _2*c1 + _28*t1 - _3*c1*c1 + _8*eccPrimSquared + _24*t1*t1) *
+               d5/_120) / cos(phil)
+      long = longOrigin - long'
+  in GeodeticCoordinate {
+    _refElipsoid = m,
+    _latitude = lat,
+    _longitude = long,
+    _height = 0 *~ meter
+    }
+
 
 utmLetter :: (Floating t, Eq t, Ord t, Enum t) => GeodeticCoordinate m t -> Maybe Char
 utmLetter coord =

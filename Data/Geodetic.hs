@@ -36,7 +36,7 @@ module Data.Geodetic (
   WGS84, wgs84, wgs84',
   GRS80, grs80, grs80',
   GeodeticCoordinate (..), refElipsoid, latitude, longitude, height,
-  UTM (..), utmZone, utmEasting, utmNorthing, toUTM,
+  UTM (..), utmZone, utmEasting, utmNorthing, toUTM, fromUTM,
   ECEF (..), coordX, coordY, coordZ,
   gcDist,
   CourseDirection (..),
@@ -48,4 +48,10 @@ import Data.Geodetic.GeodeticModel
 import Data.Geodetic.GreatCircle
 import Data.Geodetic.Elipsoids
 import Data.Geodetic.UTM
+
+
+ms = wgs84 54 7 0
+ums = toUTM ms
+ms2 = fromUTM ums
+
 

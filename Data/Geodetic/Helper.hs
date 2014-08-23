@@ -33,19 +33,31 @@ import Numeric.Units.Dimensional.TF.Prelude
 between :: (Ord a, Floating a) => a -> a -> Quantity DPlaneAngle a -> Bool
 between a b l = l >= (a *~ degree)  && l <  (b *~ degree)
 
-_15,_18,_24,_32,_35,_45,_58,_61,_64,_72,_120,_256,_330, _600,_720,_1024,_3072 :: (Num t) => Dimensionless t
-_15 = 15 *~ one  
+_10,_15,_16,_18,_21,_24,_27,_28,_32,_35,_45,_55,_58,_61,_64 :: (Num t) => Dimensionless t
+_72,_90,_96,_120,_151,_252,_256,_298,_330, _600,_720,_1024,_3072 :: (Num t) => Dimensionless t
+_10 = 10 *~ one 
+_15 = 15 *~ one
+_16 = 16 *~ one  
 _18 = 18 *~ one
-_24 = 24 *~ one 
+_21 = 21 *~ one
+_24 = 24 *~ one
+_28 = 28 *~ one
+_27 = 27 *~ one 
 _32 = 32 *~ one
 _35 = 35 *~ one
 _45 = 45 *~ one
+_55 = 55 *~ one
 _58 = 58 *~ one
 _61 = 61 *~ one
 _64 = 64 *~ one
 _72 = 72 *~ one
-_120 = 120 *~ one 
+_90 = 90 *~ one
+_96 = 96 *~ one
+_120 = 120 *~ one
+_151 = 151 *~ one
+_252 = 252 *~ one
 _256 = 256 *~ one
+_298 = 298 *~ one
 _330 = 330 *~ one 
 _600 = 600 *~ one
 _720 = 720 *~ one 

@@ -31,7 +31,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 module Data.Geodetic.Coordinate where
 
-import Control.Lens
+import Control.Lens hiding ((*~))
 import Data.Typeable
 import qualified Prelude ()
 import Numeric.Units.Dimensional.TF.Prelude
@@ -54,3 +54,9 @@ data ECEF t =
     } deriving (Show, Eq, Typeable)
 makeLenses ''ECEF
 
+
+dm :: Floating a => a -> a -> Quantity DPlaneAngle a
+dm d m = (d *~ degree) + (m *~ minuteOfArc)
+
+dms :: Floating a => a -> a -> a -> Quantity DPlaneAngle a
+dms d m s = dm d m + (s *~ secondOfArc)

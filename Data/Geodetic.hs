@@ -2,6 +2,34 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 
+{-
+Copyright (c) 2014, Markus Barenhoff <alios@alios.org>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in the
+      documentation and/or other materials provided with the distribution.
+    * Neither the name of the <organization> nor the
+      names of its contributors may be used to endorse or promote products
+      derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+-}
+
 module Data.Geodetic (
   GeodeticModel (..),
   ANS, ans, ans',
@@ -21,81 +49,3 @@ import Data.Geodetic.GreatCircle
 import Data.Geodetic.Elipsoids
 import Data.Geodetic.UTM
 
-
---ms = wgs84 51.969659 7.605286 0
---ums = toUTM $  ms
-
-{-
-import qualified Prelude ()
-import Numeric.Units.Dimensional.TF.Prelude
-import Control.Lens hiding (_1, _2, _3, (*~))
-import Data.Typeable
-
-
-
-sm :: (Fractional t) => Length t
-sm = 1.852 *~ kilo meter
-
-
-
-        
-
-
-
-dr :: (Floating t) =>
-      GeodeticCoordinate m t -> Velocity t -> Time t -> PlaneAngle t -> PlaneAngle t --GeodeticCoordinate m t 
-dr fix v t a =
-  let l = ((v * t) / sm)
-  in l
-
-t = dr ms (160 *~ (kilo meter / hour)) (30 *~ minute) (90 *~ degree)
-
-
-
-msgrs :: GeodeticCoordinate GRS80 Double
-msgrs = fromGeodetic ms
-
-
-
-cmsny = gcCourse CourseWest ms ny
-cmshh = gcCourse CourseEast ms hh
-
-
-ms = wgs84 51.969659 7.605286 0
-
-foo = wgs84 51.969659 23.605286 0
-
-mse = toEcef ms
-ms2 = fromEcef WGS84 mse
-
-hh = wgs84 53.543572 10.02502 74
-hhg = grs80 53.543572 10.02502 74
-
-fa = gcDist ms hh
-fb = gcDist ms $ fromGeodetic hhg
-
-ny = wgs84 40.43 (-74) 0
-
-
-d1 = ms ^. latitude - ms2 ^.latitude
-d2 = ms ^. longitude - ms2 ^.longitude
-d3 = ms ^. height - ms2 ^.height
-
-aa :: (RealFloat t, Typeable t, GeodeticModel a, GeodeticModel b) =>
-      GeodeticCoordinate a t -> GeodeticCoordinate b t
-aa = fromGeodetic . fromEcef GRS80 . toEcef . fromEcef ANS . toEcef
-
-xx :: [GeodeticCoordinate WGS84 Float]
-xx = [ wgs84 x y 0 | x <- [0..359] , y <- [-90, 90] ]
-xxx = fmap aa  xx
-
-xxxx = zip xx xxx
-
-xd f =
-  let ds = map (\(a,b) -> a ^. f - b ^. f) xxxx
-  in (minimum ds, maximum ds)
-xd1 = xd latitude     
-xd2 = xd longitude
-xd3 = xd height
-
--}

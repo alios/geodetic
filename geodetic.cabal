@@ -19,10 +19,11 @@ cabal-version:       >=1.10
 library
   exposed-modules:     Data.Geodetic
                        Data.Geodetic.Coordinate
-                       Data.Geodetic.GreatCircle
                        Data.Geodetic.Elipsoids
+                       Data.Geodetic.UTM
+                       Data.Geodetic.GreatCircle
 
-  --other-modules:       Data.Geodetic.Internal
+  other-modules:       Data.Geodetic.Helper
        
   -- other-extensions:    
   build-depends:     base >= 4,

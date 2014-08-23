@@ -5,6 +5,9 @@ import Data.Geodetic.Coordinate
 import Data.Typeable
 import Numeric.Units.Dimensional.TF.Prelude
 import Control.Lens ((^.))
+import Data.Maybe (fromJust)
+data Hemisphere = Northern | Soutern
+
 
 
 class (Eq m, Typeable m) => GeodeticModel m where

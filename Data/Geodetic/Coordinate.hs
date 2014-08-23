@@ -5,7 +5,9 @@ module Data.Geodetic.Coordinate where
 
 import Control.Lens
 import Data.Typeable
+import qualified Prelude ()
 import Numeric.Units.Dimensional.TF.Prelude
+
 
 data GeodeticCoordinate m t =
   GeodeticCoordinate {

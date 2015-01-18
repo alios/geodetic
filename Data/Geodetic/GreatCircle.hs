@@ -37,7 +37,6 @@ import Data.Geodetic.GeodeticModel
 import qualified Prelude ()
 import Numeric.Units.Dimensional.TF.Prelude
 import Data.Typeable
-import Control.Lens ((^.))
 import Data.Fixed (mod')
 
 
@@ -62,9 +61,9 @@ gcDist c1 c2 = c1 `gcDist'` c2
 gcCourse :: (Ord t, Real t, Floating t, GeodeticModel a) =>
             CourseDirection -> GeodeticCoordinate a t -> GeodeticCoordinate a t -> PlaneAngle t
 gcCourse d a b =
-  let jb = b ^. longitude
+  let jb = _longitude b
       dg = gcDist a b / (1 *~ meter)
-      ja = a ^. longitude 
+      ja = _longitude a
       ar = ((sin jb) - (cos dg) * (sin ja)) / ((cos ja) * (sin dg))
       d360 = (360 *~ degree)
       c = case d of

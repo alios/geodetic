@@ -36,7 +36,6 @@ import Data.Geodetic.Coordinate
 import Data.Geodetic.GeodeticModel
 import Data.Geodetic.Elipsoids
 
-import Control.Lens hiding (_1, _2, _3, _4, _5, _6, _8, _9, (*~))
 import qualified Prelude as P
 import Data.Typeable
 import Numeric.Units.Dimensional.TF.Prelude
@@ -47,7 +46,6 @@ data UTM m t = UTM {
   _utmEasting :: Length t,
   _utmNorthing :: Length t
   } deriving (Show, Eq, Typeable)
-makeLenses ''UTM
 
 
 k0 :: (Floating t) => Dimensionless t
@@ -63,14 +61,14 @@ southernOffset = 10000 *~ kilo meter
 toUTM :: (GeodeticModel m, RealFrac t, Floating t, Enum t, Show t, Show m) =>
          GeodeticCoordinate m t -> UTM m t
 toUTM coord =
-  let a = semiMajorAxis $ coord ^. refElipsoid
-      eccSquared = fstEccentricity $ coord ^. refElipsoid
+  let a = semiMajorAxis $ _refElipsoid coord 
+      eccSquared = fstEccentricity $ _refElipsoid coord
       eccPrimSquared = eccSquared / (_1 - eccSquared)
       es = eccSquared
       es2 = es * es
       es3 = es2 * es
-      lat = coord ^. latitude
-      long = coord ^. longitude
+      lat = _latitude coord
+      long = _longitude coord
       zoneNumberI =
         case (isSpecialZone coord) of
           Nothing -> floor $ (((long + (180 *~ degree)) / (6 *~ degree)) + _1) /~ one
@@ -111,10 +109,10 @@ toUTM coord =
 fromUTM :: (GeodeticModel m, Floating t) => UTM m t -> GeodeticCoordinate m t 
 fromUTM utm =
   let m = geodeticModel
-      x = (utm ^. utmEasting) - eastingOffset
-      y = (utm ^. utmNorthing) - if isNorthern then (0 *~ meter) else southernOffset
+      x = (_utmEasting utm) - eastingOffset
+      y = (_utmNorthing utm) - if isNorthern then (0 *~ meter) else southernOffset
       a = semiMajorAxis m
-      (zoneNumberI, zoneLetter) = (utm ^. utmZone)
+      (zoneNumberI, zoneLetter) = (_utmZone utm)
       zoneNumber = (fromIntegral zoneNumberI) *~ one
       isNorthern = zoneLetter >= 'N'
       longOrigin = (zoneNumber - _1) * (6 *~ degree) - (180 *~ degree) + (3 *~ degree)
@@ -159,7 +157,7 @@ fromUTM utm =
 
 utmLetter :: (Floating t, Eq t, Ord t, Enum t) => GeodeticCoordinate m t -> Maybe Char
 utmLetter coord =
-  let l = (coord ^. latitude) /~ degree 
+  let l = (_latitude coord) /~ degree 
   in if (l == 80)
      then Just 'X'
      else fmap fst $ find (\(_, (a,b)) -> (l >= a) && (l < b)) zs
@@ -168,8 +166,8 @@ utmLetter coord =
 
 specZones1 :: (Ord t, Floating t) => GeodeticCoordinate m t -> Maybe Int
 specZones1 coord =
-  let lat = coord ^. latitude
-      long = coord ^. longitude
+  let lat = _latitude coord
+      long = _longitude coord
       zs = fmap snd $ find (\(p, _) -> p long) ps
       ps = [ (between  0  9, 31)
            , (between  9 21, 33)
@@ -181,8 +179,8 @@ specZones1 coord =
 
 specZones2 :: (Ord t, Floating t) => GeodeticCoordinate m t -> Maybe Int
 specZones2 coord =
-  let lat = coord ^. latitude
-      long = coord ^. longitude
+  let lat = _latitude coord
+      long = _longitude coord
   in if (between 56 64 lat && between 3 12 long)
      then Just 32 else Nothing
 

@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 {-
 Copyright (c) 2014, Markus Barenhoff <alios@alios.org>
@@ -31,7 +30,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 module Data.Geodetic.Coordinate where
 
-import Control.Lens hiding ((*~))
 import Data.Typeable
 import qualified Prelude ()
 import Numeric.Units.Dimensional.TF.Prelude
@@ -44,7 +42,6 @@ data GeodeticCoordinate m t =
     _longitude :: !(PlaneAngle t),
     _height :: !(Length t)
     } deriving (Show, Eq, Typeable)
-makeLenses ''GeodeticCoordinate
 
 data ECEF t =
   ECEF {
@@ -52,7 +49,6 @@ data ECEF t =
     _coordY :: !(Length t),
     _coordZ :: !(Length t)
     } deriving (Show, Eq, Typeable)
-makeLenses ''ECEF
 
 
 dm :: Floating a => a -> a -> Quantity DPlaneAngle a

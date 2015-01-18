@@ -29,8 +29,7 @@ library
        
   other-extensions:  TemplateHaskell, DeriveDataTypeable  
   build-depends:     base >= 4,
-                     dimensional-tf,
-                     lens >= 4.3
+                     dimensional-tf
 
   default-language:    Haskell2010
 

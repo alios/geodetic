@@ -32,7 +32,6 @@ import qualified Prelude ()
 import Data.Geodetic.Coordinate
 import Data.Typeable
 import Numeric.Units.Dimensional.TF.Prelude
-import Control.Lens ((^.))
 data Hemisphere = Northern | Soutern
 
 
@@ -56,9 +55,9 @@ class (Eq m, Typeable m) => GeodeticModel m where
     in  a / b
   toEcef :: (Floating t) => GeodeticCoordinate m t -> ECEF t
   toEcef c =
-    let φ = c ^. longitude
-        λ = c ^. latitude
-        h = c ^. height
+    let φ = _longitude c
+        λ = _latitude c
+        h = _height c
         e2 = fstEccentricity $ _refElipsoid c
         x = sqrt (_1 - (e2 * ((sin φ) ** _2)))
         a = semiMajorAxis $ _refElipsoid c
@@ -70,9 +69,9 @@ class (Eq m, Typeable m) => GeodeticModel m where
     in ECEF rx ry rz
   fromEcef :: (RealFloat t) => m -> ECEF t -> GeodeticCoordinate m t
   fromEcef m coord = 
-    let x = coord ^. coordX
-        y = coord ^. coordY
-        z = coord ^. coordZ 
+    let x = _coordX coord 
+        y = _coordY coord 
+        z = _coordZ coord
         a = semiMajorAxis m
         b = semiMinorAxis m
         e2 = fstEccentricity m

@@ -36,9 +36,9 @@ module Data.Geodetic (
   WGS84, wgs84, wgs84',
   GRS80, grs80, grs80',
   dm, dms,
-  GeodeticCoordinate (..), refElipsoid, latitude, longitude, height,
-  UTM (..), utmZone, utmEasting, utmNorthing, toUTM, fromUTM,
-  ECEF (..), coordX, coordY, coordZ,
+  GeodeticCoordinate (..),
+  UTM (..),
+  ECEF (..),
   gcDist,
   CourseDirection (..),
   gcCourse,
@@ -51,26 +51,11 @@ import Data.Geodetic.Elipsoids
 import Data.Geodetic.UTM
 
 import Numeric.Units.Dimensional.TF.Prelude
-import Control.Lens ((^.))
 
 ms :: GeodeticCoordinate WGS84 Double
 ms = wgs84 51.994605 7.594299 0
 ums = toUTM ms
 ms2 = fromUTM ums
 
-
-hh = wgs84 53.540316 10.024810
-
---dmshhgc = gcDist ms hh
-
-
-
--- Zone 32U | Ostwert 691,831 | Nordwert 5337,164
-x = ((ms2 ^. latitude) /~ degree, (ms2 ^. longitude) /~ degree)
-
-
-testwgs = wgs84' (dms 49 29 13.6) (dms 8 27 58.6) (0 *~ meter)
-testutm = toUTM testwgs
-testwgs2 = fromUTM testutm
 
 

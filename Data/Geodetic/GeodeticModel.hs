@@ -1,3 +1,6 @@
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
 {-
 Copyright (c) 2014, Markus Barenhoff <alios@alios.org>
 All rights reserved.
@@ -30,13 +33,20 @@ module Data.Geodetic.GeodeticModel where
 
 import qualified Prelude ()
 import Data.Geodetic.Coordinate
-import Data.Typeable
 import Numeric.Units.Dimensional.TF.Prelude
 data Hemisphere = Northern | Soutern
+  
 
-
-
-class (Eq m, Typeable m) => GeodeticModel m where
+class (Floating t, Show t, Show (GeodeticCoordinate m t)) =>
+      GeodeticModel m t where
+  data GeodeticCoordinate m t :: *
+  refElipsoid :: GeodeticCoordinate m t -> m
+  latitude  :: GeodeticCoordinate m t -> PlaneAngle t
+  longitude :: GeodeticCoordinate m t -> PlaneAngle t
+  height :: GeodeticCoordinate m t -> Length t
+  mkCoordinate :: PlaneAngle t -> PlaneAngle t -> Length t ->
+                  GeodeticCoordinate m t
+                  
   semiMajorAxis :: (Fractional t) => m -> Length t
   recProcFlattening :: (Fractional t) => m -> Dimensionless t
   flattening :: (Fractional t) => m -> Dimensionless t
@@ -50,17 +60,17 @@ class (Eq m, Typeable m) => GeodeticModel m where
   sndEccentricity :: (Floating t, Fractional t) => m -> Dimensionless t
   sndEccentricity m =     
     let f = flattening m
-        a = f * (_2 - f) 
+        a = f * (_2 - f)  
         b = ((_1 - f) ** _2)
     in  a / b
   toEcef :: (Floating t) => GeodeticCoordinate m t -> ECEF t
   toEcef c =
-    let φ = _longitude c
-        λ = _latitude c
-        h = _height c
-        e2 = fstEccentricity $ _refElipsoid c
+    let φ = longitude c
+        λ = latitude c
+        h = height c
+        e2 = fstEccentricity $ refElipsoid c
         x = sqrt (_1 - (e2 * ((sin φ) ** _2)))
-        a = semiMajorAxis $ _refElipsoid c
+        a = semiMajorAxis $ refElipsoid c
         normal = a / x
         normalh = normal + h
         rx = normalh * (cos φ) * (cos λ)
@@ -97,8 +107,4 @@ class (Eq m, Typeable m) => GeodeticModel m where
         h = u * (_1 - ((b * b)/(a * v)))
         φ = atan ((z + (e'2 * z0)) / r)
         λ = atan2 y x
-    in GeodeticCoordinate m λ φ h
-  geodeticModel :: m
-  fromGeodetic :: (GeodeticModel a, Typeable t, RealFloat t) =>
-                  GeodeticCoordinate a t -> GeodeticCoordinate m t
-  fromGeodetic = fromEcef geodeticModel . toEcef 
+    in mkCoordinate λ φ h

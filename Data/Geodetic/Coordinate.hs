@@ -34,25 +34,16 @@ import Data.Typeable
 import qualified Prelude ()
 import Numeric.Units.Dimensional.TF.Prelude
 
-
-data GeodeticCoordinate m t =
-  GeodeticCoordinate {
-    _refElipsoid :: !m,
-    _latitude :: !(PlaneAngle t),
-    _longitude :: !(PlaneAngle t),
-    _height :: !(Length t)
-    } deriving (Show, Eq, Typeable)
-
 data ECEF t =
   ECEF {
-    _coordX :: !(Length t),
-    _coordY :: !(Length t),
-    _coordZ :: !(Length t)
+    _coordX :: (Length t),
+    _coordY :: (Length t),
+    _coordZ :: (Length t)
     } deriving (Show, Eq, Typeable)
 
 
-dm :: Floating a => a -> a -> Quantity DPlaneAngle a
+dm :: Floating a => a -> a -> PlaneAngle a
 dm d m = (d *~ degree) + (m *~ minuteOfArc)
 
-dms :: Floating a => a -> a -> a -> Quantity DPlaneAngle a
+dms :: Floating a => a -> a -> a -> PlaneAngle a
 dms d m s = dm d m + (s *~ secondOfArc)

@@ -26,7 +26,7 @@ library
                        Data.Geodetic.GreatCircle
 
   other-modules:       Data.Geodetic.Helper
-       
+  ghc-options:       -Wall -O2
   other-extensions:  TemplateHaskell, DeriveDataTypeable  
   build-depends:     base >= 4,
                      dimensional-tf

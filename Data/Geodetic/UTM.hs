@@ -1,4 +1,3 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 
 {-
@@ -57,18 +56,18 @@ eastingOffset = 500 *~ kilo meter
 southernOffset :: (Num t) => Length t
 southernOffset = 10000 *~ kilo meter
 
-
+{-
 toUTM :: (GeodeticModel m, RealFrac t, Floating t, Enum t, Show t, Show m) =>
          GeodeticCoordinate m t -> UTM m t
 toUTM coord =
-  let a = semiMajorAxis $ _refElipsoid coord 
-      eccSquared = fstEccentricity $ _refElipsoid coord
+  let a = semiMajorAxis $ refElipsoid coord 
+      eccSquared = fstEccentricity $ refElipsoid coord
       eccPrimSquared = eccSquared / (_1 - eccSquared)
       es = eccSquared
       es2 = es * es
       es3 = es2 * es
-      lat = _latitude coord
-      long = _longitude coord
+      lat = latitude coord
+      long = longitude coord
       zoneNumberI =
         case (isSpecialZone coord) of
           Nothing -> floor $ (((long + (180 *~ degree)) / (6 *~ degree)) + _1) /~ one
@@ -105,13 +104,15 @@ toUTM coord =
     _utmEasting = easting,
     _utmNorthing = northing
     }
-
+-}
+{-
 fromUTM :: (GeodeticModel m, Floating t) => UTM m t -> GeodeticCoordinate m t 
 fromUTM utm =
-  let m = geodeticModel
-      x = (_utmEasting utm) - eastingOffset
-      y = (_utmNorthing utm) - if isNorthern then (0 *~ meter) else southernOffset
-      a = semiMajorAxis m
+  let x = (_utmEasting utm) - eastingOffset
+      y = (_utmNorthing utm) - if isNorthern
+                               then (0 *~ meter) else southernOffset
+      
+      a = semiMajorAxis $ m
       (zoneNumberI, zoneLetter) = (_utmZone utm)
       zoneNumber = (fromIntegral zoneNumberI) *~ one
       isNorthern = zoneLetter >= 'N'
@@ -154,7 +155,8 @@ fromUTM utm =
     _height = 0 *~ meter
     }
 
-
+-}
+{-
 utmLetter :: (Floating t, Eq t, Ord t, Enum t) => GeodeticCoordinate m t -> Maybe Char
 utmLetter coord =
   let l = (_latitude coord) /~ degree 
@@ -195,3 +197,4 @@ isSpecialZone coord =
     (Just _, Just _) -> error "isSpecZone found zone in spec zone 1 & 2"
   
 
+-}

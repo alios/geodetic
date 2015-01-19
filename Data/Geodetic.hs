@@ -1,6 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 {-
 Copyright (c) 2014, Markus Barenhoff <alios@alios.org>
@@ -32,12 +31,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 module Data.Geodetic (
   GeodeticModel (..),
-  ANS, ans, ans',
-  WGS84, wgs84, wgs84',
-  GRS80, grs80, grs80',
+  ANS (..),
+  WGS84 (..),
+  GRS80 (..),
   dm, dms,
   GeodeticCoordinate (..),
-  UTM (..),
   ECEF (..),
   gcDist,
   CourseDirection (..),
@@ -48,14 +46,9 @@ import Data.Geodetic.Coordinate
 import Data.Geodetic.GeodeticModel
 import Data.Geodetic.GreatCircle
 import Data.Geodetic.Elipsoids
-import Data.Geodetic.UTM
+--import Data.Geodetic.UTM
 
-import Numeric.Units.Dimensional.TF.Prelude
 
-ms :: GeodeticCoordinate WGS84 Double
-ms = wgs84 51.994605 7.594299 0
-ums = toUTM ms
-ms2 = fromUTM ums
 
 
 

@@ -37,7 +37,7 @@ import Numeric.Units.Dimensional.TF.Prelude
 data Hemisphere = Northern | Soutern
   
 
-class (Floating t, Show t, Show (GeodeticCoordinate m t)) =>
+class (Ord t, Floating t, Show t, Show m, Show (GeodeticCoordinate m t)) =>
       GeodeticModel m t where
   data GeodeticCoordinate m t :: *
   refElipsoid :: GeodeticCoordinate m t -> m

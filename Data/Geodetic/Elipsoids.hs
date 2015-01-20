@@ -37,9 +37,9 @@ import Data.Geodetic.GeodeticModel
 import qualified Prelude ()
 import Numeric.Units.Dimensional.TF.Prelude
 
-data WGS84 = ElipsoidWGS84
+data WGS84 = ElipsoidWGS84 deriving (Eq, Show)
 
-instance (Floating t, Show t) => GeodeticModel WGS84 t where
+instance (Ord t, Floating t, Show t) => GeodeticModel WGS84 t where
   data GeodeticCoordinate WGS84 t =
     WGS84 { _wgs84Lat :: PlaneAngle t
           , _wgs84Long :: PlaneAngle t
@@ -53,9 +53,9 @@ instance (Floating t, Show t) => GeodeticModel WGS84 t where
   longitude = _wgs84Long
   height = _wgs84Height
 
-data ANS = ElipsoidANS
+data ANS = ElipsoidANS deriving (Eq, Show)
 
-instance (Floating t, Show t) => GeodeticModel ANS t where
+instance (Ord t, Floating t, Show t) => GeodeticModel ANS t where
   data GeodeticCoordinate ANS t =
     ANS { _ansLat :: PlaneAngle t
           , _ansLong :: PlaneAngle t
@@ -69,9 +69,9 @@ instance (Floating t, Show t) => GeodeticModel ANS t where
   longitude = _ansLong
   height = _ansHeight
 
-data GRS80 = ElipsoidGRS80
+data GRS80 = ElipsoidGRS80 deriving (Eq, Show)
 
-instance (Floating t, Show t) => GeodeticModel GRS80 t where
+instance (Ord t, Floating t, Show t) => GeodeticModel GRS80 t where
   data GeodeticCoordinate GRS80 t =
     GRS80 { _grs80Lat :: PlaneAngle t
           , _grs80Long :: PlaneAngle t

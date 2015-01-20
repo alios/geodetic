@@ -43,7 +43,8 @@ import Data.List (find)
 data UTM m t = UTM {
   _utmZone :: (Int, Char),
   _utmEasting :: Length t,
-  _utmNorthing :: Length t
+  _utmNorthing :: Length t,
+  _utmHeight :: Length t
   } deriving (Show, Eq, Typeable)
 
 
@@ -56,8 +57,10 @@ eastingOffset = 500 *~ kilo meter
 southernOffset :: (Num t) => Length t
 southernOffset = 10000 *~ kilo meter
 
-{-
-toUTM :: (GeodeticModel m, RealFrac t, Floating t, Enum t, Show t, Show m) =>
+
+
+
+toUTM :: (GeodeticModel m t, RealFrac t, Enum t) =>
          GeodeticCoordinate m t -> UTM m t
 toUTM coord =
   let a = semiMajorAxis $ refElipsoid coord 
@@ -102,21 +105,22 @@ toUTM coord =
   in UTM {
     _utmZone = (zoneNumberI, zoneLetter),
     _utmEasting = easting,
-    _utmNorthing = northing
+    _utmNorthing = northing,
+    _utmHeight = height coord
     }
--}
-{-
-fromUTM :: (GeodeticModel m, Floating t) => UTM m t -> GeodeticCoordinate m t 
-fromUTM utm =
+
+
+fromUTM :: (GeodeticModel m t) => m -> UTM m t -> GeodeticCoordinate m t 
+fromUTM m utm =
   let x = (_utmEasting utm) - eastingOffset
       y = (_utmNorthing utm) - if isNorthern
                                then (0 *~ meter) else southernOffset
-      
       a = semiMajorAxis $ m
       (zoneNumberI, zoneLetter) = (_utmZone utm)
       zoneNumber = (fromIntegral zoneNumberI) *~ one
       isNorthern = zoneLetter >= 'N'
-      longOrigin = (zoneNumber - _1) * (6 *~ degree) - (180 *~ degree) + (3 *~ degree)
+      longOrigin = (zoneNumber - _1) * (6 *~ degree) -
+                   (180 *~ degree) + (3 *~ degree)
       eccPrimSquared = eccSquared / (_1 - eccSquared)
       eccSquared = fstEccentricity m
       es = eccSquared
@@ -148,28 +152,26 @@ fromUTM utm =
                (_5 - _2*c1 + _28*t1 - _3*c1*c1 + _8*eccPrimSquared + _24*t1*t1) *
                d5/_120) / cos(phi1)
       long = longOrigin - long'
-  in GeodeticCoordinate {
-    _refElipsoid = m,
-    _latitude = lat,
-    _longitude = long,
-    _height = 0 *~ meter
-    }
+  in mkCoordinate lat long (_utmHeight utm)
 
--}
-{-
-utmLetter :: (Floating t, Eq t, Ord t, Enum t) => GeodeticCoordinate m t -> Maybe Char
+
+utmLetter :: (GeodeticModel m t, Ord t, Enum t) =>
+             GeodeticCoordinate m t -> Maybe Char
 utmLetter coord =
-  let l = (_latitude coord) /~ degree 
-  in if (l == 80)
+  let l = (latitude coord) /~ degree 
+  in if (l == fromRational 80)
      then Just 'X'
      else fmap fst $ find (\(_, (a,b)) -> (l >= a) && (l < b)) zs
   where cs = ['C' .. 'H'] ++ ['J'.. 'N'] ++ ['P'..'X']
-        zs = zip cs $ fmap (\x -> (x, (P.+) x 8)) [ (P.+)(-80) ((P.*) x 8) | x <- [0 .. ]]
+        zs = zip cs $ fmap (\x -> (x, (P.+) x 8))
+             [ (P.+)(-80) ((P.*) x 8) | x <- [0 .. ]]
 
-specZones1 :: (Ord t, Floating t) => GeodeticCoordinate m t -> Maybe Int
+
+specZones1 :: (GeodeticModel m t, Ord t) =>
+              GeodeticCoordinate m t -> Maybe Int
 specZones1 coord =
-  let lat = _latitude coord
-      long = _longitude coord
+  let lat = latitude coord
+      long = longitude coord
       zs = fmap snd $ find (\(p, _) -> p long) ps
       ps = [ (between  0  9, 31)
            , (between  9 21, 33)
@@ -179,14 +181,17 @@ specZones1 coord =
   in if (between 72 84 lat)
         then zs else Nothing
 
-specZones2 :: (Ord t, Floating t) => GeodeticCoordinate m t -> Maybe Int
+specZones2 :: (GeodeticModel m t, Ord t) =>
+              GeodeticCoordinate m t -> Maybe Int
 specZones2 coord =
-  let lat = _latitude coord
-      long = _longitude coord
+  let lat = latitude coord
+      long = longitude coord
   in if (between 56 64 lat && between 3 12 long)
      then Just 32 else Nothing
 
-isSpecialZone :: (Ord t, Floating t) => GeodeticCoordinate m t -> Maybe Int
+
+isSpecialZone :: (GeodeticModel m t, Ord t) =>
+                 GeodeticCoordinate m t -> Maybe Int
 isSpecialZone coord =
   let z1 = specZones1 coord
       z2 = specZones2 coord
@@ -195,6 +200,3 @@ isSpecialZone coord =
     (Just z, Nothing) -> Just z
     (Nothing, Just z) -> Just z
     (Just _, Just _) -> error "isSpecZone found zone in spec zone 1 & 2"
-  
-
--}

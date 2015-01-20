@@ -24,6 +24,7 @@ library
                        Data.Geodetic.Elipsoids
                        Data.Geodetic.UTM
                        Data.Geodetic.GreatCircle
+                       Data.Geodetic.GeodeticModel
 
   other-modules:       Data.Geodetic.Helper
   ghc-options:       -Wall -O2

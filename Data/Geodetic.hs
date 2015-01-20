@@ -60,9 +60,9 @@ propEcef :: (GeodeticModel m t, RealFloat t) =>
             GeodeticCoordinate m t -> Bool
 propEcef a =
   let r = ecefDiff a
-  in (latitude r == 0 *~ degree) &&
-     (longitude r <= maxLongErr) &&
-     (height r) <= maxHeightErr
+  in ((latitude r) == 0 *~ degree) &&
+     ((abs $ longitude r) <= maxLongErr) &&
+     ((abs $ height r) <= maxHeightErr)
   where maxLongErr = 0.01 *~ degree
         maxHeightErr = 0.1 *~ meter
         
@@ -81,11 +81,11 @@ propUTM :: (GeodeticModel m t, Enum t, RealFloat t) =>
             GeodeticCoordinate m t -> Bool
 propUTM a =
   let r = ecefDiff a
-  in (latitude r == maxLatErr) &&
-     (longitude r <= maxLongErr) &&
+  in ((abs $ latitude r) <= maxLatErr) &&
+     ((abs $ longitude r) <= maxLongErr) &&
      (height r == 0 *~ meter)
-  where maxLatErr = 1 *~ degree
-        maxLongErr = 1 *~ degree
+  where maxLatErr = 0.01 *~ degree
+        maxLongErr = 0.01 *~ degree
         
 
 

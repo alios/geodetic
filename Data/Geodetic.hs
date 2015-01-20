@@ -46,9 +46,54 @@ import Data.Geodetic.Coordinate
 import Data.Geodetic.GeodeticModel
 import Data.Geodetic.GreatCircle
 import Data.Geodetic.Elipsoids
---import Data.Geodetic.UTM
+import Data.Geodetic.UTM
+
+import qualified Prelude ()
+import Numeric.Units.Dimensional.TF.Prelude
 
 
+testvar = WGS84 (57 *~ degree) (7 *~ degree) (0 *~ meter)
 
 
+     
+propEcef :: (GeodeticModel m t, RealFloat t) =>
+            GeodeticCoordinate m t -> Bool
+propEcef a =
+  let r = ecefDiff a
+  in (latitude r == 0 *~ degree) &&
+     (longitude r <= maxLongErr) &&
+     (height r) <= maxHeightErr
+  where maxLongErr = 0.01 *~ degree
+        maxHeightErr = 0.1 *~ meter
+        
 
+ecefDiff :: (RealFloat t, GeodeticModel m t) =>
+            GeodeticCoordinate m t -> GeodeticCoordinate m t
+ecefDiff a =
+  let b = toEcef a
+      c = fromEcef (refElipsoid a) b
+  in mkCoordinate (latitude a - latitude c)
+                  (longitude a - longitude c)
+                  (height a - height c)
+
+
+propUTM :: (GeodeticModel m t, Enum t, RealFloat t) =>
+            GeodeticCoordinate m t -> Bool
+propUTM a =
+  let r = ecefDiff a
+  in (latitude r == maxLatErr) &&
+     (longitude r <= maxLongErr) &&
+     (height r == 0 *~ meter)
+  where maxLatErr = 1 *~ degree
+        maxLongErr = 1 *~ degree
+        
+
+
+utmDiff :: (Enum t, RealFloat t, GeodeticModel m t) =>
+            GeodeticCoordinate m t -> GeodeticCoordinate m t
+utmDiff a =
+  let b = toUTM a
+      c = fromUTM (refElipsoid a) b
+  in mkCoordinate (latitude a - latitude c)
+                  (longitude a - longitude c)
+                  (height a - height c)

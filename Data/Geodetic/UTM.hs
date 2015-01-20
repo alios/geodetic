@@ -31,9 +31,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 module Data.Geodetic.UTM  where
 
 import Data.Geodetic.Helper
-import Data.Geodetic.Coordinate
+
 import Data.Geodetic.GeodeticModel
-import Data.Geodetic.Elipsoids
+
 
 import qualified Prelude as P
 import Data.Typeable

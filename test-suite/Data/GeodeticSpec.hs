@@ -10,9 +10,19 @@ import Data.Geodetic
 import Test.Hspec
 import Test.QuickCheck
 
+
+instance Arbitrary (GeodeticCoordinate WGS84 Double) where
+  arbitrary = do
+    lat <- arbitrary `suchThat` (\l -> (l >= -90) && (l < 90))
+    lon <- arbitrary `suchThat` (\l -> (l >= -180) && (l < 180))
+    h <- arbitrary   `suchThat` (\h -> (h >= -100) && (h < 100))
+    return $ mkCoordinate (lat *~ degree) (lon *~ degree) (h *~ meter)
+
+
+
 spec :: Spec
 spec = describe "ECEF conversion" $ do
-  it "should not produce no latitude error" $
+  it "should produce no latitude error" $
     property $ propEcefLat 
   it "should not produce longitude error larger then 0.01 degree" $
     property $ propEcefLong
@@ -20,26 +30,25 @@ spec = describe "ECEF conversion" $ do
     property $ propEcefHeight 
 
 
+la = 5.7427358164264024e-2 *~ degree
+lo = (-2.866380396973443e-2) *~ degree
+lh = (-1.6819506351663547) *~ meter
+aa :: GeodeticCoordinate WGS84 Double
+aa = WGS84 {_wgs84Lat = la, _wgs84Long = lo, _wgs84Height = lh}
+ad = ecefDiff aa
+pla = propEcefLat aa
+plb = propEcefLong aa
+plc = propEcefHeight aa
 
-instance Arbitrary (GeodeticCoordinate WGS84 Double) where
-  arbitrary = do
-    lat <- arbitrary `suchThat` (\l -> (l >= -180) && (l < 180))
-    lon <- arbitrary `suchThat` (\l -> (l >= -90) && (l < 90))
-    h <- arbitrary   `suchThat` (\h -> (h >= -100) && (h < 100))
-    return $ mkCoordinate (lat *~ degree) (lon *~ degree) (h *~ meter)
-
-
-
-
-propEcefLong, propEcefLat, propEcefHeight :: (GeodeticModel WGS84 Double) =>
+propEcefLat, propEcefLong, propEcefHeight :: (GeodeticModel WGS84 Double) =>
                 GeodeticCoordinate WGS84 Double -> Bool
 propEcefLat c =
   let d = ecefDiff c
-  in ((abs $ latitude d)) <= (0.01 *~ degree)
+  in ((abs $ latitude d)) == (0 *~ degree)
 
 propEcefLong c =
   let d = ecefDiff c
-  in ((abs $ longitude d)) == (0 *~ degree)
+  in ((abs $ longitude d)) <= (0.01 *~ degree)
 
 propEcefHeight c =
   let d = ecefDiff c
@@ -53,6 +62,9 @@ ecefDiff a =
   in mkCoordinate (latitude a - latitude c)
                   (longitude a - longitude c)
                   (height a - height c)
+
+
+
 
 
 propUTM :: (GeodeticModel m t, Enum t, RealFloat t) =>
